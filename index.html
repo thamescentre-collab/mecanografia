@@ -2968,6 +2968,60 @@ textDisplay.addEventListener('keydown', (e) => {
     }
 });
 
+// Listener global: permite empezar a escribir al pulsar cualquier tecla cuando estemos en el panel de alumno
+document.addEventListener('keydown', (e) => {
+  try {
+    // Solo si el panel de alumno está visible
+    if (window.getComputedStyle(studentPanel).display === 'none') return;
+
+    // Ignorar teclas modificadoras y navegación
+    const ignoreKeys = ['Shift','Control','Alt','Meta','Tab','Escape'];
+    if (ignoreKeys.includes(e.key)) return;
+
+    // Si el foco ya está en un control dentro del panel de alumno, no interferir
+    const active = document.activeElement;
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.tagName === 'BUTTON' || active.isContentEditable)) {
+      if (studentPanel.contains(active)) return;
+    }
+
+    // Evitar que la barra espaciadora haga scroll cuando interceptamos la tecla
+    if (e.key === ' ') e.preventDefault();
+
+    // Si textDisplay no tiene foco, enfocarlo y reenviar la tecla como evento sintético
+    if (document.activeElement !== textDisplay) {
+      textDisplay.focus();
+
+      // Crear evento sintético con propiedades relevantes
+      const ev = new KeyboardEvent(e.type, {
+        key: e.key,
+        code: e.code,
+        keyCode: e.keyCode || 0,
+        which: e.which || 0,
+        altKey: e.altKey,
+        ctrlKey: e.ctrlKey,
+        shiftKey: e.shiftKey,
+        metaKey: e.metaKey,
+        bubbles: true,
+        cancelable: true
+      });
+
+      // Enviar el evento al elemento que maneja la lógica (textDisplay)
+      textDisplay.dispatchEvent(ev);
+
+      // Evitar que el evento original siga propagándose (y sea procesado por otros listeners)
+      e.stopPropagation();
+      e.preventDefault && e.preventDefault();
+      return;
+    }
+
+    // Si textDisplay ya tiene foco, dejamos que el listener original procese la tecla (no duplicamos)
+  } catch (err) {
+    console.error('Error en el listener global de teclado:', err);
+  }
+}, true);
+
+
+
 // Event listener para eliminar alumnos - CORREGIDO
 document.addEventListener('click', function(e) {
     // Verificar si se hizo clic en un botón de eliminar alumno
