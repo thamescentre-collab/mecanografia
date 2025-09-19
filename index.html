@@ -144,7 +144,6 @@ display: flex;
 align-items: center;
 justify-content: center;
 gap: 8px;
-width: 100%;
 }
 .btn:hover {
 background-color: #4338ca;
@@ -208,6 +207,10 @@ font-size: 1.8rem;
 font-weight: 600;
 color: var(--primary);
 }
+.admin-header-buttons {
+display: flex;
+gap: 10px;
+}
 .lessons-container {
 margin-bottom: 30px;
 }
@@ -216,6 +219,8 @@ display: flex;
 justify-content: space-between;
 align-items: center;
 margin-bottom: 20px;
+flex-wrap: wrap;
+gap: 10px;
 }
 .lessons-title {
 font-size: 1.5rem;
@@ -870,6 +875,7 @@ box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 display: flex;
 gap: 10px;
 margin-bottom: 20px;
+flex-wrap: wrap;
 }
 
 .student-item {
@@ -985,6 +991,64 @@ font-weight: bold;
 font-size: 0.9rem;
 }
 
+/* Contenedor de botones de lecciones */
+.lessons-buttons {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+/* Modal para cambiar contraseña */
+.password-modal {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-color: rgba(0, 0, 0, 0.7);
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 1000;
+opacity: 0;
+visibility: hidden;
+transition: var(--transition);
+}
+
+.password-modal.show {
+opacity: 1;
+visibility: visible;
+}
+
+.password-modal .modal-content {
+background-color: white;
+border-radius: 16px;
+padding: 30px;
+max-width: 400px;
+width: 90%;
+text-align: center;
+transform: scale(0.8);
+transition: var(--transition);
+}
+
+.password-modal.show .modal-content {
+transform: scale(1);
+}
+
+.password-modal .result-title {
+font-size: 1.5rem;
+margin-bottom: 20px;
+}
+
+.password-modal .form-group {
+margin-bottom: 15px;
+text-align: left;
+}
+
+.password-modal .form-actions {
+margin-top: 20px;
+}
+
 @media (max-width: 768px) {
 .app-header h1 {
 font-size: 2rem;
@@ -1055,6 +1119,15 @@ bottom: 20px;
 right: 20px;
 padding: 12px 20px;
 }
+
+.lessons-buttons {
+flex-direction: column;
+}
+
+.admin-header-buttons {
+flex-direction: column;
+gap: 5px;
+}
 }
 </style>
 </head>
@@ -1109,18 +1182,31 @@ padding: 12px 20px;
 <div id="admin-panel" class="main-content admin-panel">
 <div class="admin-header">
 <h2 class="admin-title">Panel de Administración</h2>
+<div class="admin-header-buttons">
+<button id="change-password-btn-header" class="btn btn-secondary">
+<i class="fas fa-key"></i> Cambiar Contraseña
+</button>
 <button id="logout-admin" class="btn btn-secondary">
 <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
 </button>
+</div>
 </div>
 
 <!-- Gestión de Lecciones -->
 <div class="lessons-container">
 <div class="lessons-header">
 <h3 class="lessons-title">Gestión de Lecciones</h3>
+<div class="lessons-buttons">
+<button id="export-lessons-btn" class="btn">
+<i class="fas fa-download"></i> Exportar
+</button>
+<button id="import-lessons-btn" class="btn btn-secondary">
+<i class="fas fa-upload"></i> Importar
+</button>
 <button id="new-lesson-btn" class="btn">
 <i class="fas fa-plus"></i> Nueva Lección
 </button>
+</div>
 </div>
 
 <div id="lessons-list">
@@ -1170,6 +1256,12 @@ padding: 12px 20px;
 <button id="view-students-btn" class="btn btn-secondary">
 <i class="fas fa-list"></i> Ver Alumnos
 </button>
+<button id="export-students-btn" class="btn">
+<i class="fas fa-download"></i> Exportar Alumnos
+</button>
+<button id="import-students-btn" class="btn btn-secondary">
+<i class="fas fa-upload"></i> Importar Alumnos
+</button>
 </div>
 
 <div id="students-management" style="display: none;">
@@ -1188,8 +1280,8 @@ padding: 12px 20px;
 </div>
 
 <div class="form-group">
-<label for="student-code-input">Código de acceso</label>
-<input type="text" id="student-code-input" class="access-code-input" placeholder="Código de acceso para el alumno">
+<label for="student-code-input-admin">Código de acceso</label>
+<input type="text" id="student-code-input-admin" class="access-code-input" placeholder="Código de acceso para el alumno">
 </div>
 
 <div class="form-actions">
@@ -1200,28 +1292,6 @@ padding: 12px 20px;
 <i class="fas fa-times"></i> Cancelar
 </button>
 </div>
-</div>
-</div>
-
-<!-- Cambiar Contraseña de Administrador -->
-<div class="admin-section">
-<h3 class="lessons-title">Cambiar Contraseña de Administrador</h3>
-<div class="form-group">
-<label for="current-password">Contraseña Actual</label>
-<input type="password" id="current-password" placeholder="Introduce la contraseña actual">
-</div>
-<div class="form-group">
-<label for="new-password">Nueva Contraseña</label>
-<input type="password" id="new-password" placeholder="Introduce la nueva contraseña">
-</div>
-<div class="form-group">
-<label for="confirm-password">Confirmar Nueva Contraseña</label>
-<input type="password" id="confirm-password" placeholder="Confirma la nueva contraseña">
-</div>
-<div class="form-actions">
-<button id="change-password-btn" class="btn">
-<i class="fas fa-save"></i> Cambiar Contraseña
-</button>
 </div>
 </div>
 
@@ -1656,8 +1726,37 @@ padding: 12px 20px;
 </div>
 </div>
 
+<!-- Modal para cambiar contraseña -->
+<div id="password-modal" class="password-modal">
+<div class="modal-content">
+<h2 class="result-title">Cambiar Contraseña</h2>
+<div class="form-group">
+<label for="modal-current-password">Contraseña Actual</label>
+<input type="password" id="modal-current-password" placeholder="Introduce la contraseña actual">
+</div>
+<div class="form-group">
+<label for="modal-new-password">Nueva Contraseña</label>
+<input type="password" id="modal-new-password" placeholder="Introduce la nueva contraseña">
+</div>
+<div class="form-group">
+<label for="modal-confirm-password">Confirmar Nueva Contraseña</label>
+<input type="password" id="modal-confirm-password" placeholder="Confirma la nueva contraseña">
+</div>
+<div class="form-actions">
+<button id="save-password-btn" class="btn">
+<i class="fas fa-save"></i> Guardar
+</button>
+<button id="cancel-password-btn" class="btn btn-secondary">
+<i class="fas fa-times"></i> Cancelar
+</button>
+</div>
+</div>
+</div>
+
+<!-- Input de archivo oculto para importar lecciones -->
+<input type="file" id="file-input" accept=".json" style="display: none;">
+
 <script>
-document.addEventListener('DOMContentLoaded', () => {
 // Variables globales
 let currentUser = null;
 let lessons = [];
@@ -1708,7 +1807,7 @@ const studentsManagement = document.getElementById('students-management');
 const studentForm = document.getElementById('student-form');
 const studentFormTitle = document.getElementById('student-form-title');
 const studentUsernameInput = document.getElementById('student-username-input');
-const studentCodeInputAdmin = document.getElementById('student-code-input');
+const studentCodeInputAdmin = document.getElementById('student-code-input-admin');
 const saveStudentBtn = document.getElementById('save-student-btn');
 const cancelStudentBtn = document.getElementById('cancel-student-btn');
 const lessonForm = document.getElementById('lesson-form');
@@ -1740,41 +1839,16 @@ const avgWpm = document.getElementById('avg-wpm');
 const avgAccuracy = document.getElementById('avg-accuracy');
 const totalErrorsStat = document.getElementById('total-errors');
 const historyTableBody = document.getElementById('history-table-body');
-
-// Inicializar datos
-function initializeApp() {
-// Cargar contraseña de administrador
-const savedAdminPassword = localStorage.getItem('adminPassword');
-if (savedAdminPassword) {
-adminPassword = savedAdminPassword;
-} else {
-// Establecer contraseña por defecto si no existe
-adminPassword = "admin123";
-localStorage.setItem('adminPassword', adminPassword);
-}
-
-// Cargar usuarios (alumnos)
-users = loadUsers();
-
-// Si no hay usuarios, crear un usuario de prueba
-if (users.length === 0) {
-users = [
-{
-id: 1,
-username: "demo",
-code: "DEMO123"
-// Ya no se incluye la contraseña
-}
-];
-saveUsers();
-}
-
-// Cargar lecciones
-lessons = loadLessons();
-
-// Cargar estadísticas
-userStats = loadUserStats();
-}
+const exportLessonsBtn = document.getElementById('export-lessons-btn');
+const importLessonsBtn = document.getElementById('import-lessons-btn');
+const fileInput = document.getElementById('file-input');
+const changePasswordBtnHeader = document.getElementById('change-password-btn-header');
+const passwordModal = document.getElementById('password-modal');
+const savePasswordBtn = document.getElementById('save-password-btn');
+const cancelPasswordBtn = document.getElementById('cancel-password-btn');
+const modalCurrentPassword = document.getElementById('modal-current-password');
+const modalNewPassword = document.getElementById('modal-new-password');
+const modalConfirmPassword = document.getElementById('modal-confirm-password');
 
 // Función para generar texto repetitivo de manera segura
 function generateRepetitiveText(baseText, repetitions) {
@@ -1785,6 +1859,48 @@ result += baseText + ' ';
 return result.trim();
 }
 
+// Función para exportar lecciones a un archivo JSON
+function exportLessons() {
+const dataStr = JSON.stringify(lessons, null, 2);
+const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+const exportFileDefaultName = 'lecciones.json';
+
+const linkElement = document.createElement('a');
+linkElement.setAttribute('href', dataUri);
+linkElement.setAttribute('download', exportFileDefaultName);
+linkElement.click();
+
+showNotification('Lecciones exportadas correctamente. Recuerda subir este archivo al servidor para hacer los cambios permanentes.', 'success');
+}
+
+// Función para importar lecciones desde un archivo JSON
+function importLessons(file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const importedLessons = JSON.parse(e.target.result);
+
+// Validar que el archivo tiene el formato correcto
+if (Array.isArray(importedLessons) && importedLessons.length > 0 &&
+importedLessons[0].id && importedLessons[0].title && importedLessons[0].content) {
+
+if (confirm('¿Estás seguro de que quieres reemplazar todas las lecciones actuales?')) {
+lessons = importedLessons;
+saveLessons();
+renderLessons();
+showNotification('Lecciones importadas correctamente. Recuerda que los cambios solo son permanentes si subes el archivo al servidor.', 'success');
+}
+} else {
+showNotification('El formato del archivo no es válido', 'error');
+}
+} catch (error) {
+showNotification('Error al procesar el archivo', 'error');
+}
+};
+reader.readAsText(file);
+}
+
 // Inicializar lecciones basadas en el manual de mecanografía
 function initializeDefaultLessons() {
 const defaultLessons = [
@@ -1792,130 +1908,565 @@ const defaultLessons = [
 id: 1,
 title: "Lección 1: Fila central (ASDF JKL;)",
 level: 1,
-content: generateRepetitiveText("asdf jkl;", 50),
+content: generateRepetitiveText("asdf jklñ", 50),
 order: 1
 },
 {
 id: 2,
-title: "Lección 2: Fila central combinada",
+title: "Lección 2: Fila central (FG JH;)",
 level: 1,
-content: generateRepetitiveText("asdf jkl; fdsa lkj", 40),
+content: generateRepetitiveText("fg jh", 50),
 order: 2
 },
 {
 id: 3,
-title: "Lección 3: Palabras con fila central",
+title: "Lección 3: Fila central (GF HJ;)",
 level: 1,
-content: "sala laña gala faja gasas hada añada agallas alhajas lasaña salada dala salsa al hada las gafas falsas añadas las gasas la faja hallada la flaka da sal la falla fallada",
+content: generateRepetitiveText("gf hj", 50),
 order: 3
 },
 {
 id: 4,
-title: "Lección 4: Fila superior (QWERTY)",
-level: 2,
-content: generateRepetitiveText("qwerty poiuy", 30),
+title: "Lección 4: Fila central (ASA ÑLÑ)",
+level: 1,
+content: generateRepetitiveText("asa ñlñ", 30),
 order: 4
 },
 {
 id: 5,
-title: "Lección 5: Combinación filas central y superior",
+title: "Lección 5: Filas central (LA LAS)",
 level: 2,
-content: generateRepetitiveText("asdwert lkjoiuy", 25),
+content: generateRepetitiveText("la las", 50),
 order: 5
 },
 {
 id: 6,
-title: "Lección 6: Palabras con fila superior",
-level: 2,
-content: "quiero perrito puerto torero querer tutor torito yute potrito pitorro retrete portero porque yo te quiero torero y porquero",
+title: "Lección 6: Fila central (HA HAS)",
+level: 1,
+content: generateRepetitiveText("ha has", 50),
 order: 6
 },
 {
 id: 7,
-title: "Lección 7: Fila inferior (ZXCVBNM)",
-level: 2,
-content: generateRepetitiveText("zxcvb nm,./", 30),
+title: "Lección 7: Fila central (DA DAS)",
+level: 1,
+content: generateRepetitiveText("da das", 50),
 order: 7
 },
 {
 id: 8,
-title: "Lección 8: Combinación de todas las filas",
-level: 3,
-content: "El rápido zorro marrón salta sobre el perro perezoso. Esta frase contiene todas las letras del alfabeto español.",
+title: "Lección 8: Fila central (SAL LAS)",
+level: 1,
+content: generateRepetitiveText("sal las", 50),
 order: 8
 },
 {
 id: 9,
-title: "Lección 9: Puntuación básica",
-level: 3,
-content: "Hola, ¿cómo estás? Bien, gracias. ¿Y tú? Muy bien, gracias por preguntar. ¡Hasta luego!",
+title: "Lección 9: Fila central (LA SALSA)",
+level: 1,
+content: generateRepetitiveText("la salsa", 50),
 order: 9
 },
 {
 id: 10,
-title: "Lección 10: Números y símbolos",
-level: 3,
-content: "1234567890 !@#$%^&*()_+-=[]{}|;':\",./<>?",
+title: "Lección 10: Fila central (FAS KAS)",
+level: 1,
+content: generateRepetitiveText("fas kas", 50),
 order: 10
 }
 ];
 
-saveLessons(defaultLessons);
 return defaultLessons;
 }
 
 // Funciones para guardar y cargar datos
 function saveLessons(lessonsToSave = lessons) {
+try {
+// Guardar en localStorage como respaldo
 localStorage.setItem('typingLessons', JSON.stringify(lessonsToSave));
+console.log('Lecciones guardadas correctamente:', lessonsToSave);
+} catch (error) {
+console.error('Error al guardar las lecciones:', error);
+showNotification('Error al guardar las lecciones', 'error');
+}
 }
 
 function loadLessons() {
+try {
+// Intentar cargar desde localStorage primero
 const savedLessons = localStorage.getItem('typingLessons');
 if (savedLessons) {
+console.log('Cargando lecciones desde localStorage');
 return JSON.parse(savedLessons);
+}
+
+// Si no hay en localStorage, intentar cargar desde archivo
+console.log('Intentando cargar lecciones desde archivo');
+const xhr = new XMLHttpRequest();
+xhr.open('GET', 'lecciones.json', false); // false para síncrono
+xhr.send();
+        
+if (xhr.status === 200) {
+const lessons = JSON.parse(xhr.responseText);
+// Guardar en localStorage como respaldo
+localStorage.setItem('typingLessons', JSON.stringify(lessons));
+console.log('Lecciones cargadas desde archivo y guardadas en localStorage');
+return lessons;
 } else {
-return initializeDefaultLessons();
+throw new Error('No se pudo cargar el archivo de lecciones');
+}
+} catch (error) {
+console.error('Error al cargar las lecciones:', error);
+showNotification('Usando lecciones predeterminadas', 'info');
+
+// Si falla la carga del archivo, usar las lecciones predeterminadas
+const defaultLessons = initializeDefaultLessons();
+saveLessons(defaultLessons);
+return defaultLessons;
 }
 }
 
+// Funciones para la gestión de alumnos
 function saveUsers() {
-localStorage.setItem('typingUsers', JSON.stringify(users));
+    localStorage.setItem('typingUsers', JSON.stringify(users));
 }
 
 function loadUsers() {
-const savedUsers = localStorage.getItem('typingUsers');
-if (savedUsers) {
-const parsedUsers = JSON.parse(savedUsers);
-// Si los usuarios tienen el campo password, lo eliminamos
-return parsedUsers.map(user => {
-const { password, ...rest } = user;
-return rest;
+    const savedUsers = localStorage.getItem('typingUsers');
+    if (savedUsers) {
+        users = JSON.parse(savedUsers);
+    } else {
+        users = [];
+    }
+}
+
+function renderStudents() {
+    const studentsList = document.querySelector('.students-list');
+    studentsList.innerHTML = '';
+
+    if (users.length === 0) {
+        studentsList.innerHTML = '<p>No hay alumnos registrados.</p>';
+        document.getElementById('total-students').textContent = '0';
+        return;
+    }
+
+    users.forEach(user => {
+        const studentItem = document.createElement('div');
+        studentItem.className = 'student-item';
+        studentItem.innerHTML = `
+            <div class="student-info">
+                <div class="student-name">${user.username}</div>
+                <div class="student-code">${user.code}</div>
+            </div>
+            <div class="student-actions">
+                <button class="btn btn-sm btn-danger delete-student-btn" data-id="${user.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        studentsList.appendChild(studentItem);
+    });
+
+    document.getElementById('total-students').textContent = users.length;
+}
+
+function exportStudents() {
+    const dataStr = JSON.stringify(users, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const exportFileDefaultName = 'alumnos.json';
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    showNotification('Alumnos exportados correctamente.', 'success');
+}
+
+function importStudents(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importedStudents = JSON.parse(e.target.result);
+            if (Array.isArray(importedStudents) && importedStudents.length > 0 &&
+                importedStudents[0].id && importedStudents[0].username && importedStudents[0].code) {
+                if (confirm('¿Estás seguro de que quieres reemplazar todos los alumnos actuales?')) {
+                    users = importedStudents;
+                    saveUsers();
+                    renderStudents();
+                    showNotification('Alumnos importados correctamente.', 'success');
+                }
+            } else {
+                showNotification('El formato del archivo no es válido', 'error');
+            }
+        } catch (error) {
+            showNotification('Error al procesar el archivo', 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// Función para renderizar las lecciones en el panel de administrador
+function renderLessons() {
+lessonsList.innerHTML = '';
+
+// Ordenar lecciones por orden
+const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
+
+sortedLessons.forEach((lesson, index) => {
+const lessonCard = document.createElement('div');
+lessonCard.className = 'lesson-card';
+lessonCard.dataset.id = lesson.id;
+lessonCard.draggable = true;
+
+// Número de lección
+const lessonNumber = document.createElement('div');
+lessonNumber.className = 'lesson-number';
+lessonNumber.textContent = index + 1;
+lessonCard.appendChild(lessonNumber);
+
+// Contenido de la lección
+const lessonCardHeader = document.createElement('div');
+lessonCardHeader.className = 'lesson-card-header';
+
+const lessonCardTitle = document.createElement('div');
+lessonCardTitle.className = 'lesson-card-title';
+lessonCardTitle.textContent = lesson.title;
+lessonCardHeader.appendChild(lessonCardTitle);
+
+const lessonLevel = document.createElement('div');
+lessonLevel.className = 'lesson-level';
+lessonLevel.innerHTML = '<span>Nivel:</span><div class="stars">' + 
+Array(lesson.level).fill('<i class="fas fa-star"></i>').join('') + 
+Array(3 - lesson.level).fill('<i class="far fa-star"></i>').join('') + 
+'</div>';
+lessonCardHeader.appendChild(lessonLevel);
+
+lessonCard.appendChild(lessonCardHeader);
+
+const lessonContent = document.createElement('div');
+lessonContent.className = 'lesson-content';
+lessonContent.textContent = lesson.content.substring(0, 150) + (lesson.content.length > 150 ? '...' : '');
+lessonCard.appendChild(lessonContent);
+
+const lessonActions = document.createElement('div');
+lessonActions.className = 'lesson-actions';
+
+const editBtn = document.createElement('button');
+editBtn.className = 'btn';
+editBtn.innerHTML = '<i class="fas fa-edit"></i> Editar';
+editBtn.addEventListener('click', () => editLesson(lesson.id));
+lessonActions.appendChild(editBtn);
+
+const deleteBtn = document.createElement('button');
+deleteBtn.className = 'btn btn-danger';
+deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Eliminar';
+deleteBtn.addEventListener('click', () => deleteLesson(lesson.id));
+lessonActions.appendChild(deleteBtn);
+
+lessonCard.appendChild(lessonActions);
+
+// Indicador de arrastre
+const dragHandle = document.createElement('div');
+dragHandle.className = 'drag-handle';
+dragHandle.innerHTML = '<i class="fas fa-grip-vertical"></i>';
+lessonCard.appendChild(dragHandle);
+
+// Eventos de arrastre
+lessonCard.addEventListener('dragstart', handleDragStart);
+lessonCard.addEventListener('dragend', handleDragEnd);
+lessonCard.addEventListener('dragover', handleDragOver);
+lessonCard.addEventListener('drop', handleDrop);
+lessonCard.addEventListener('dragenter', handleDragEnter);
+lessonCard.addEventListener('dragleave', handleDragLeave);
+
+lessonsList.appendChild(lessonCard);
 });
+}
+
+// Función para renderizar las lecciones en el selector del panel de alumno
+function renderLessonSelector() {
+lessonSelect.innerHTML = '';
+
+// Ordenar lecciones por orden
+const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
+
+if (sortedLessons.length === 0) {
+    // Si no hay lecciones, mostrar un mensaje
+    const option = document.createElement('option');
+    option.value = '';
+    option.textContent = 'No hay lecciones disponibles';
+    option.disabled = true;
+    option.selected = true;
+    lessonSelect.appendChild(option);
+    
+    // Mostrar mensaje en el área de texto
+    textDisplay.innerHTML = '<div style="text-align: center; padding: 50px; color: var(--gray);">No hay lecciones disponibles. Contacta al administrador.</div>';
+    return;
+}
+
+sortedLessons.forEach((lesson, index) => {
+const option = document.createElement('option');
+option.value = index;
+option.textContent = lesson.title;
+lessonSelect.appendChild(option);
+});
+
+// Cargar la primera lección por defecto
+loadLesson(0);
+}
+
+// Función para cargar una lección
+function loadLesson(index) {
+// Ordenar lecciones por orden
+const sortedLessons = [...lessons].sort((a, b) => a.order - b.order);
+currentLesson = sortedLessons[index];
+currentIndex = index;
+
+if (!currentLesson) return;
+
+// Actualizar selector
+lessonSelect.value = index;
+
+// Actualizar título y nivel
+currentLessonTitle.textContent = currentLesson.title;
+currentLessonStars.innerHTML = Array(currentLesson.level).fill('<i class="fas fa-star"></i>').join('') + 
+Array(3 - currentLesson.level).fill('<i class="far fa-star"></i>').join('');
+
+// Mostrar el texto de la lección
+textDisplay.innerHTML = '';
+currentLesson.content.split('').forEach((char, i) => {
+const span = document.createElement('span');
+span.className = 'char';
+span.textContent = char;
+if (i === 0) span.classList.add('current');
+textDisplay.appendChild(span);
+});
+
+// Reiniciar el ejercicio
+resetExercise();
+}
+
+// Función para reiniciar el ejercicio
+function resetExercise() {
+currentIndex = 0;
+userInput = '';
+correctChars = 0;
+incorrectChars = 0;
+totalErrors = 0;
+startTime = null;
+typingActive = false;
+exerciseCompleted = false;
+
+// Detener el temporizador
+if (timerInterval) {
+clearInterval(timerInterval);
+timerInterval = null;
+}
+
+// Actualizar la visualización del texto
+const chars = textDisplay.querySelectorAll('.char');
+chars.forEach((char, i) => {
+char.classList.remove('current', 'correct', 'incorrect');
+if (i === 0) char.classList.add('current');
+});
+
+// Actualizar estadísticas
+updateStats();
+updateProgress();
+}
+
+// Función para iniciar el ejercicio
+function startTyping() {
+if (typingActive) return;
+typingActive = true;
+startTime = Date.now();
+
+// Iniciar el temporizador
+timerInterval = setInterval(updateTimer, 100);
+}
+
+// Función para manejar la entrada de caracteres
+function handleCharacterInput(char) {
+if (!typingActive || exerciseCompleted) return;
+
+// Obtener el carácter esperado
+const expectedChar = currentLesson.content[currentIndex];
+
+// Actualizar el estado del carácter actual
+const currentCharElement = textDisplay.querySelector('.char.current');
+if (currentCharElement) {
+if (char === expectedChar) {
+currentCharElement.classList.remove('current');
+currentCharElement.classList.add('correct');
+correctChars++;
 } else {
-return [];
+currentCharElement.classList.remove('current');
+currentCharElement.classList.add('incorrect');
+incorrectChars++;
+totalErrors++;
 }
 }
 
-function saveUserStats() {
+// Actualizar el índice y el carácter actual
+userInput += char;
+currentIndex++;
+
+// Si hay más caracteres, marcar el siguiente como actual
+if (currentIndex < currentLesson.content.length) {
+const nextCharElement = textDisplay.querySelectorAll('.char')[currentIndex];
+if (nextCharElement) {
+nextCharElement.classList.add('current');
+}
+} else {
+// Si no hay más caracteres, el ejercicio está completo
+completeExercise();
+}
+
+// Actualizar estadísticas y progreso
+updateStats();
+updateProgress();
+}
+
+// Función para manejar la tecla de retroceso
+function handleBackspace() {
+if (!typingActive || exerciseCompleted || currentIndex === 0) return;
+
+// Si el carácter actual es incorrecto, simplemente borrarlo
+const currentCharElement = textDisplay.querySelector('.char.current');
+if (currentCharElement && currentCharElement.classList.contains('incorrect')) {
+currentCharElement.classList.remove('current', 'incorrect');
+incorrectChars--;
+totalErrors--;
+} else {
+// Si no, retroceder al carácter anterior
+currentIndex--;
+const prevCharElement = textDisplay.querySelectorAll('.char')[currentIndex];
+if (prevCharElement) {
+prevCharElement.classList.remove('correct');
+prevCharElement.classList.add('current');
+correctChars--;
+}
+}
+
+// Actualizar el texto del usuario
+userInput = userInput.slice(0, -1);
+
+// Actualizar estadísticas y progreso
+updateStats();
+updateProgress();
+}
+
+// Función para completar el ejercicio
+function completeExercise() {
+exerciseCompleted = true;
+typingActive = false;
+
+// Detener el temporizador
+if (timerInterval) {
+clearInterval(timerInterval);
+timerInterval = null;
+}
+
+// Calcular estadísticas finales
+const elapsedTime = (Date.now() - startTime) / 1000; // en segundos
+const minutes = elapsedTime / 60;
+const words = currentLesson.content.trim().split(/\s+/).length;
+const wpm = Math.round(words / minutes);
+const accuracy = Math.round((correctChars / (correctChars + incorrectChars)) * 100);
+
+// Guardar estadísticas del usuario
+saveUserStats({
+lessonId: currentLesson.id,
+lessonTitle: currentLesson.title,
+wpm: wpm,
+accuracy: accuracy,
+errors: totalErrors,
+time: elapsedTime,
+date: new Date().toISOString()
+});
+
+// Mostrar el modal de resultados
+finalWpm.textContent = wpm;
+finalAccuracy.textContent = accuracy + '%';
+finalTime.textContent = formatTime(elapsedTime);
+finalErrors.textContent = totalErrors;
+resultModal.classList.add('show');
+}
+
+// Función para guardar las estadísticas del usuario
+function saveUserStats(stats) {
+// Si no hay estadísticas para este usuario, inicializar el array
+if (!userStats[currentUser.id]) {
+userStats[currentUser.id] = [];
+}
+
+// Añadir las nuevas estadísticas
+userStats[currentUser.id].push(stats);
+
+// Guardar en localStorage
 localStorage.setItem('typingUserStats', JSON.stringify(userStats));
 }
 
-function loadUserStats() {
-const savedStats = localStorage.getItem('typingUserStats');
-return savedStats ? JSON.parse(savedStats) : [];
+// Función para actualizar las estadísticas en tiempo real
+function updateStats() {
+if (!startTime) {
+wpmDisplay.textContent = '0';
+accuracyDisplay.textContent = '100%';
+errorsDisplay.textContent = '0';
+return;
 }
 
-// Funciones de notificación
+// Calcular tiempo transcurrido
+const elapsedTime = (Date.now() - startTime) / 1000; // en segundos
+
+// Calcular palabras por minuto (PPM)
+const minutes = elapsedTime / 60;
+const words = userInput.trim().split(/\s+/).length;
+const wpm = Math.round(words / minutes);
+wpmDisplay.textContent = wpm;
+
+// Calcular precisión
+const accuracy = correctChars + incorrectChars > 0 
+? Math.round((correctChars / (correctChars + incorrectChars)) * 100) 
+: 100;
+accuracyDisplay.textContent = accuracy + '%';
+
+// Actualizar errores
+errorsDisplay.textContent = totalErrors;
+}
+
+// Función para actualizar el temporizador
+function updateTimer() {
+if (!startTime) return;
+const elapsedTime = (Date.now() - startTime) / 1000; // en segundos
+timeDisplay.textContent = formatTime(elapsedTime);
+}
+
+// Función para formatear el tiempo (segundos a MM:SS)
+function formatTime(seconds) {
+const mins = Math.floor(seconds / 60);
+const secs = Math.floor(seconds % 60);
+return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// Función para actualizar la barra de progreso
+function updateProgress() {
+const progress = (currentIndex / currentLesson.content.length) * 100;
+progressDisplay.style.width = `${progress}%`;
+}
+
+// Función para mostrar notificaciones
 function showNotification(message, type = 'info') {
 const notification = document.createElement('div');
 notification.className = `notification ${type}`;
 notification.textContent = message;
 document.body.appendChild(notification);
 
+// Mostrar la notificación
 setTimeout(() => {
 notification.classList.add('show');
 }, 10);
 
+// Ocultar la notificación después de 3 segundos
 setTimeout(() => {
 notification.classList.remove('show');
 setTimeout(() => {
@@ -1924,585 +2475,42 @@ document.body.removeChild(notification);
 }, 3000);
 }
 
-// Funciones para el panel de administración
-function renderLessons() {
-lessonsList.innerHTML = '';
-
-// Ordenar lecciones por orden
-lessons.sort((a, b) => a.order - b.order);
-
-lessons.forEach((lesson, index) => {
-const lessonCard = document.createElement('div');
-lessonCard.className = 'lesson-card';
-lessonCard.draggable = true;
-lessonCard.dataset.lessonId = lesson.id;
-lessonCard.dataset.lessonOrder = lesson.order;
-
-lessonCard.innerHTML = `
-<div class="lesson-number">${index + 1}</div>
-<div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-<div class="lesson-card-header">
-<div class="lesson-card-title">${lesson.title}</div>
-<div class="lesson-level">
-<span>Nivel:</span>
-<div class="stars">
-${renderStars(lesson.level)}
-</div>
-</div>
-</div>
-<div class="lesson-content">${lesson.content.substring(0, 100)}${lesson.content.length > 100 ? '...' : ''}</div>
-<div class="lesson-actions">
-<button class="btn btn-sm" data-id="${lesson.id}" data-action="edit">
-<i class="fas fa-edit"></i> Editar
-</button>
-<button class="btn btn-sm btn-danger" data-id="${lesson.id}" data-action="delete">
-<i class="fas fa-trash"></i> Eliminar
-</button>
-</div>
-`;
-
-lessonsList.appendChild(lessonCard);
-});
-
-// Añadir eventos de arrastre
-addDragAndDropEvents();
-
-// Añadir eventos a los botones de acción
-document.querySelectorAll('.lesson-actions button').forEach(button => {
-button.addEventListener('click', handleLessonAction);
-});
-}
-
-function renderStars(level) {
-let stars = '';
-for (let i = 1; i <= 3; i++) {
-stars += i <= level ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>';
-}
-return stars;
-}
-
-function handleLessonAction(e) {
-const action = e.currentTarget.dataset.action;
-const lessonId = parseInt(e.currentTarget.dataset.id);
-
-if (action === 'edit') {
-editLesson(lessonId);
-} else if (action === 'delete') {
-deleteLesson(lessonId);
-}
-}
-
-function editLesson(lessonId) {
-const lesson = lessons.find(l => l.id === lessonId);
-if (lesson) {
-editingLessonId = lessonId;
-formTitle.textContent = 'Editar Lección';
-lessonTitleInput.value = lesson.title;
-lessonLevelInput.value = lesson.level;
-lessonContentInput.value = lesson.content;
-lessonForm.classList.add('active');
-}
-}
-
-function deleteLesson(lessonId) {
-if (confirm('¿Estás seguro de que quieres eliminar esta lección?')) {
-lessons = lessons.filter(l => l.id !== lessonId);
-saveLessons();
-renderLessons();
-showNotification('Lección eliminada correctamente', 'success');
-}
-}
-
-// Funciones para arrastrar y soltar lecciones
-function addDragAndDropEvents() {
-const lessonCards = document.querySelectorAll('.lesson-card');
-
-lessonCards.forEach(card => {
-card.addEventListener('dragstart', handleDragStart);
-card.addEventListener('dragover', handleDragOver);
-card.addEventListener('drop', handleDrop);
-card.addEventListener('dragend', handleDragEnd);
-});
-}
-
-function handleDragStart(e) {
-draggedElement = e.currentTarget;
-e.currentTarget.classList.add('dragging');
-}
-
-function handleDragOver(e) {
-e.preventDefault();
-const afterElement = getDragAfterElement(lessonsList, e.clientY);
-const dragging = document.querySelector('.dragging');
-if (afterElement == null) {
-lessonsList.appendChild(dragging);
+// Función para cargar las estadísticas del usuario
+function loadUserStats() {
+const savedStats = localStorage.getItem('typingUserStats');
+if (savedStats) {
+userStats = JSON.parse(savedStats);
 } else {
-lessonsList.insertBefore(dragging, afterElement);
+userStats = {};
 }
 }
 
-function handleDrop(e) {
-e.preventDefault();
-updateLessonsOrder();
-}
-
-function handleDragEnd(e) {
-e.currentTarget.classList.remove('dragging');
-}
-
-function getDragAfterElement(container, y) {
-const draggableElements = [...container.querySelectorAll('.lesson-card:not(.dragging)')];
-
-return draggableElements.reduce((closest, child) => {
-const box = child.getBoundingClientRect();
-const offset = y - box.top - box.height / 2;
-
-if (offset < 0 && offset > closest.offset) {
-return { offset: offset, element: child };
-} else {
-return closest;
-}
-}, { offset: Number.NEGATIVE_INFINITY }).element;
-}
-
-function updateLessonsOrder() {
-const lessonCards = document.querySelectorAll('.lesson-card');
-lessonCards.forEach((card, index) => {
-const lessonId = parseInt(card.dataset.lessonId);
-const lesson = lessons.find(l => l.id === lessonId);
-if (lesson) {
-lesson.order = index + 1;
-}
-});
-saveLessons();
-renderLessons();
-}
-
-// Funciones para la gestión de alumnos
-function renderStudents() {
-const studentsList = document.querySelector('.students-list');
-studentsList.innerHTML = '';
-
-if (users.length === 0) {
-studentsList.innerHTML = '<p>No hay alumnos registrados.</p>';
-document.getElementById('total-students').textContent = '0';
-return;
-}
-
-users.forEach(student => {
-const studentItem = document.createElement('div');
-studentItem.className = 'student-item';
-studentItem.innerHTML = `
-<div class="student-info">
-<div class="student-name">${student.username}</div>
-<div class="student-code">Código: ${student.code}</div>
-</div>
-<div class="student-actions">
-<button class="btn btn-sm" data-id="${student.id}" data-action="edit">
-<i class="fas fa-edit"></i>
-</button>
-<button class="btn btn-sm btn-danger" data-id="${student.id}" data-action="delete">
-<i class="fas fa-trash"></i>
-</button>
-</div>
-`;
-studentsList.appendChild(studentItem);
-});
-
-document.getElementById('total-students').textContent = users.length;
-
-// Añadir eventos a los botones
-document.querySelectorAll('.student-actions button').forEach(button => {
-button.addEventListener('click', handleStudentAction);
-});
-}
-
-function handleStudentAction(e) {
-const action = e.currentTarget.dataset.action;
-const studentId = parseInt(e.currentTarget.dataset.id);
-
-if (action === 'edit') {
-editStudent(studentId);
-} else if (action === 'delete') {
-deleteStudent(studentId);
-}
-}
-
-function editStudent(studentId) {
-const student = users.find(u => u.id === studentId);
-if (student) {
-editingStudentId = studentId;
-studentFormTitle.textContent = 'Editar Alumno';
-studentUsernameInput.value = student.username;
-studentCodeInputAdmin.value = student.code;
-studentForm.classList.add('active');
-}
-}
-
-function deleteStudent(studentId) {
-if (confirm('¿Estás seguro de que quieres eliminar a este alumno?')) {
-users = users.filter(u => u.id !== studentId);
-saveUsers();
-renderStudents();
-showNotification('Alumno eliminado correctamente', 'success');
-}
-}
-
-// Función para resaltar la tecla que debe presionarse
-function highlightExpectedKey(char) {
-    // Quitar la clase 'expected' de todas las teclas
-    document.querySelectorAll('.key').forEach(key => {
-        key.classList.remove('expected');
-    });
-    
-    // Si no hay carácter esperado, no hacemos nada
-    if (!char) return;
-    
-    // Buscar la tecla con data-key igual al carácter esperado
-    const keyElement = document.querySelector(`.key[data-key="${char}"]`);
-    if (keyElement) {
-        keyElement.classList.add('expected');
-    }
-}
-
-// Función para reiniciar completamente la lección
-function resetLessonCompletely() {
-    // Detener el timer si está corriendo
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-    
-    // Reiniciar variables
-    currentIndex = 0;
-    correctChars = 0;
-    incorrectChars = 0;
-    totalErrors = 0;
-    userInput = '';
-    typingActive = false;
-    exerciseCompleted = false;
-    
-    // Reiniciar estadísticas
-    resetStats();
-    
-    // Volver a renderizar la lección
-    renderLesson();
-    
-    // Resaltar la primera tecla esperada
-    if (currentLesson && currentLesson.content.length > 0) {
-        highlightExpectedKey(currentLesson.content[0]);
-    }
-    
-    // Resetear teclado
-    document.querySelectorAll('.key').forEach(key => {
-        key.classList.remove('active', 'correct', 'incorrect');
-    });
-}
-
-// Funciones para el panel de estudiantes
-function initLesson() {
-currentLesson = lessons[0]; // Por defecto, la primera lección
-if (lessonSelect.options.length > 0) {
-currentLesson = lessons.find(lesson => lesson.id == lessonSelect.value);
-}
-currentIndex = 0;
-correctChars = 0;
-incorrectChars = 0;
-totalErrors = 0;
-userInput = '';
-typingActive = false;
-exerciseCompleted = false;
-
-// Mostrar la lección en el área de texto
-renderLesson();
-
-// Resaltar la primera tecla esperada
-if (currentLesson && currentLesson.content.length > 0) {
-    highlightExpectedKey(currentLesson.content[0]);
-}
-
-// Resetear estadísticas
-resetStats();
-
-// Resetear teclado
-document.querySelectorAll('.key').forEach(key => {
-key.classList.remove('active', 'correct', 'incorrect');
-});
-}
-
-function renderLesson() {
-textDisplay.innerHTML = '';
-if (!currentLesson) return;
-
-const text = currentLesson.content;
-for (let i = 0; i < text.length; i++) {
-const char = document.createElement('span');
-char.className = 'char';
-char.textContent = text[i];
-if (i === 0) {
-char.classList.add('current');
-}
-textDisplay.appendChild(char);
-}
-}
-
-function handleKeyDown(e) {
-// Si el ejercicio está completado, no hacer nada
-if (exerciseCompleted) return;
-
-// Ignorar teclas de control como Alt, Ctrl, etc.
-if (e.ctrlKey || e.altKey || e.metaKey) return;
-
-// Si no se ha empezado a escribir, iniciar el cronómetro
-if (!typingActive) {
-startTimer();
-typingActive = true;
-}
-
-const chars = textDisplay.querySelectorAll('.char');
-if (chars.length === 0) return;
-
-const currentChar = chars[currentIndex];
-const expectedChar = currentChar.textContent;
-
-// Manejar tecla de retroceso
-if (e.key === 'Backspace') {
-if (currentIndex > 0) {
-// Retroceder un carácter
-chars[currentIndex].classList.remove('current');
-currentIndex--;
-chars[currentIndex].classList.add('current');
-
-// Si el carácter anterior era incorrecto, reducir el contador de errores
-if (chars[currentIndex].classList.contains('incorrect')) {
-incorrectChars--;
-totalErrors--;
-} else {
-correctChars--;
-}
-
-// Quitar la clase de correcto o incorrecto
-chars[currentIndex].classList.remove('correct', 'incorrect');
-
-// Resaltar la nueva tecla esperada
-highlightExpectedKey(chars[currentIndex].textContent);
-}
-updateStats();
-return;
-}
-
-// Manejar tecla de espacio
-if (e.key === ' ') {
-e.preventDefault(); // Evitar el scroll
-}
-
-// Comparar la tecla presionada con el carácter esperado
-if (e.key === expectedChar) {
-// Carácter correcto
-currentChar.classList.remove('current');
-currentChar.classList.add('correct');
-correctChars++;
-currentIndex++;
-
-// Si hay más caracteres, marcar el siguiente como actual
-if (currentIndex < chars.length) {
-chars[currentIndex].classList.add('current');
-// Resaltar la siguiente tecla esperada
-highlightExpectedKey(chars[currentIndex].textContent);
-} else {
-// Ejercicio completado
-completeExercise();
-}
-} else {
-// Carácter incorrecto
-currentChar.classList.remove('current');
-currentChar.classList.add('incorrect');
-incorrectChars++;
-totalErrors++;
-currentIndex++;
-
-// Si hay más caracteres, marcar el siguiente como actual
-if (currentIndex < chars.length) {
-chars[currentIndex].classList.add('current');
-// Resaltar la siguiente tecla esperada
-highlightExpectedKey(chars[currentIndex].textContent);
-} else {
-// Ejercicio completado
-completeExercise();
-}
-}
-
-// Actualizar el teclado visual
-updateKeyboard(e.key, e.key === expectedChar);
-
-// Actualizar estadísticas
-updateStats();
-}
-
-function updateKeyboard(key, isCorrect) {
-// Buscar la tecla correspondiente
-const keyElement = document.querySelector(`.key[data-key="${key}"]`);
-if (keyElement) {
-// Quitar clases anteriores
-keyElement.classList.remove('active', 'correct', 'incorrect');
-
-// Añadir la clase correspondiente
-if (isCorrect) {
-keyElement.classList.add('correct');
-} else {
-keyElement.classList.add('incorrect');
-}
-
-// Simular la pulsación
-keyElement.classList.add('active');
-
-// Quitar la clase active después de un tiempo
-setTimeout(() => {
-keyElement.classList.remove('active');
-}, 100);
-}
-}
-
-function startTimer() {
-startTime = Date.now();
-timerInterval = setInterval(updateTimer, 1000);
-}
-
-function updateTimer() {
-if (!startTime) return;
-
-const elapsed = Math.floor((Date.now() - startTime) / 1000);
-const minutes = Math.floor(elapsed / 60);
-const seconds = elapsed % 60;
-
-timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function updateStats() {
-// Calcular palabras por minuto (WPM)
-const timeElapsed = startTime ? (Date.now() - startTime) / 1000 / 60 : 0; // en minutos
-const wordsTyped = correctChars / 5; // Consideramos 5 caracteres por palabra
-const wpm = timeElapsed > 0 ? Math.round(wordsTyped / timeElapsed) : 0;
-wpmDisplay.textContent = wpm;
-
-// Calcular precisión
-const totalChars = correctChars + incorrectChars;
-const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
-accuracyDisplay.textContent = `${accuracy}%`;
-
-// Actualizar errores
-errorsDisplay.textContent = totalErrors;
-
-// Actualizar barra de progreso
-const progress = (currentIndex / textDisplay.querySelectorAll('.char').length) * 100;
-progressDisplay.style.width = `${progress}%`;
-}
-
-function resetStats() {
-wpmDisplay.textContent = '0';
-accuracyDisplay.textContent = '100%';
-timeDisplay.textContent = '0:00';
-errorsDisplay.textContent = '0';
-progressDisplay.style.width = '0%';
-
-if (timerInterval) {
-clearInterval(timerInterval);
-timerInterval = null;
-}
-startTime = null;
-}
-
-function completeExercise() {
-exerciseCompleted = true;
-clearInterval(timerInterval);
-
-// Quitar el resaltado de la tecla esperada
-highlightExpectedKey(null);
-
-// Mostrar resultados en el modal
-finalWpm.textContent = wpmDisplay.textContent;
-finalAccuracy.textContent = accuracyDisplay.textContent;
-finalTime.textContent = timeDisplay.textContent;
-finalErrors.textContent = errorsDisplay.textContent;
-
-// Guardar estadísticas
-saveLessonStats();
-
-// Mostrar modal
-resultModal.classList.add('show');
-    
-    // No reiniciar las estadísticas aquí para que se mantengan visibles
-}
-
-function saveLessonStats() {
-if (!currentUser || !currentLesson) return;
-
-const stats = {
-userId: currentUser.id,
-lessonId: currentLesson.id,
-lessonTitle: currentLesson.title,
-date: new Date().toISOString(),
-wpm: parseInt(wpmDisplay.textContent),
-accuracy: parseInt(accuracyDisplay.textContent),
-errors: parseInt(errorsDisplay.textContent),
-time: timeDisplay.textContent
-};
-
-userStats.push(stats);
-saveUserStats();
-}
-
-function loadStudentPanel() {
-// Cargar lecciones en el select
-lessonSelect.innerHTML = '';
-lessons.forEach(lesson => {
-const option = document.createElement('option');
-option.value = lesson.id;
-option.textContent = lesson.title;
-lessonSelect.appendChild(option);
-});
-
-// Inicializar la primera lección
-initLesson();
-
-// Actualizar título y nivel de la lección actual
-updateCurrentLessonInfo();
-}
-
-function updateCurrentLessonInfo() {
-if (!currentLesson) return;
-
-currentLessonTitle.textContent = currentLesson.title;
-currentLessonStars.innerHTML = renderStars(currentLesson.level);
-}
-
-function loadStatsPanel() {
-// Filtrar estadísticas del usuario actual
-const userStatsData = userStats.filter(stat => stat.userId === currentUser.id);
-
-// Actualizar resumen de estadísticas
-totalLessons.textContent = userStatsData.length;
-
-if (userStatsData.length > 0) {
-const totalWpm = userStatsData.reduce((sum, stat) => sum + stat.wpm, 0);
-const avgWpmValue = Math.round(totalWpm / userStatsData.length);
-avgWpm.textContent = avgWpmValue;
-
-const totalAccuracy = userStatsData.reduce((sum, stat) => sum + stat.accuracy, 0);
-const avgAccuracyValue = Math.round(totalAccuracy / userStatsData.length);
-avgAccuracy.textContent = `${avgAccuracyValue}%`;
-
-const totalErrorsValue = userStatsData.reduce((sum, stat) => sum + stat.errors, 0);
-totalErrorsStat.textContent = totalErrorsValue;
-} else {
+// Función para mostrar las estadísticas del usuario
+function showUserStats() {
+if (!currentUser || !userStats[currentUser.id]) {
+totalLessons.textContent = '0';
 avgWpm.textContent = '0';
 avgAccuracy.textContent = '0%';
 totalErrorsStat.textContent = '0';
+historyTableBody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No hay estadísticas disponibles</td></tr>';
+return;
 }
 
-// Actualizar historial
+const stats = userStats[currentUser.id];
+totalLessons.textContent = stats.length;
+
+// Calcular promedios
+const totalWpm = stats.reduce((sum, stat) => sum + stat.wpm, 0);
+const totalAccuracy = stats.reduce((sum, stat) => sum + stat.accuracy, 0);
+const totalErrors = stats.reduce((sum, stat) => sum + stat.errors, 0);
+
+avgWpm.textContent = Math.round(totalWpm / stats.length);
+avgAccuracy.textContent = Math.round(totalAccuracy / stats.length) + '%';
+totalErrorsStat.textContent = totalErrors;
+
+// Mostrar historial
 historyTableBody.innerHTML = '';
-userStatsData.forEach(stat => {
+stats.slice().reverse().forEach(stat => {
 const row = document.createElement('tr');
 row.innerHTML = `
 <td>${stat.lessonTitle}</td>
@@ -2510,133 +2518,38 @@ row.innerHTML = `
 <td>${stat.wpm}</td>
 <td>${stat.accuracy}%</td>
 <td>${stat.errors}</td>
-<td>${stat.time}</td>
+<td>${formatTime(stat.time)}</td>
 `;
 historyTableBody.appendChild(row);
 });
 }
 
-// Event Listeners
-studentBtn.addEventListener('click', () => {
-studentBtn.classList.add('active');
-adminBtn.classList.remove('active');
-adminPasswordDiv.style.display = 'none';
-studentLoginDiv.style.display = 'block';
-studentCodeDiv.style.display = 'block';
-loginSubtitle.textContent = 'Si eres alumno de Thames Centre, introduce tu nombre y código';
-});
+// Función para editar una lección
+function editLesson(id) {
+const lesson = lessons.find(l => l.id === id);
+if (!lesson) return;
 
-adminBtn.addEventListener('click', () => {
-adminBtn.classList.add('active');
-studentBtn.classList.remove('active');
-adminPasswordDiv.style.display = 'block';
-studentLoginDiv.style.display = 'none';
-studentCodeDiv.style.display = 'none';
-loginSubtitle.textContent = 'Introduce la contraseña de administrador';
-});
-
-accessBtn.addEventListener('click', () => {
-if (studentBtn.classList.contains('active')) {
-// Acceso como alumno
-const name = studentNameInput.value.trim();
-const code = studentCodeInput.value.trim();
-
-if (!name || !code) {
-showNotification('Por favor, introduce tu nombre y código', 'error');
-return;
+editingLessonId = id;
+formTitle.textContent = 'Editar Lección';
+lessonTitleInput.value = lesson.title;
+lessonLevelInput.value = lesson.level;
+lessonContentInput.value = lesson.content;
+lessonForm.classList.add('active');
 }
 
-const user = users.find(u => u.username === name && u.code === code);
-if (user) {
-currentUser = { ...user, type: 'student' };
-loginScreen.style.display = 'none';
-studentPanel.style.display = 'block';
-loadStudentPanel();
-showNotification(`Bienvenido, ${name}`, 'success');
-} else {
-showNotification('Nombre o código incorrectos', 'error');
-}
-} else {
-// Acceso como administrador
-const password = passwordInput.value;
-if (password === adminPassword) {
-currentUser = { type: 'admin' };
-loginScreen.style.display = 'none';
-adminPanel.style.display = 'block';
-loadAdminPanel();
-showNotification('Bienvenido, administrador', 'success');
-} else {
-showNotification('Contraseña incorrecta', 'error');
-}
-}
-});
-
-exitBtn.addEventListener('click', () => {
-if (confirm('¿Estás seguro de que quieres salir de la aplicación?')) {
-window.close();
-}
-});
-
-logoutAdminBtn.addEventListener('click', () => {
-if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-currentUser = null;
-adminPanel.style.display = 'none';
-loginScreen.style.display = 'block';
-passwordInput.value = '';
-showNotification('Sesión cerrada', 'info');
-}
-});
-
-logoutStudentBtn.addEventListener('click', () => {
-if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-currentUser = null;
-studentPanel.style.display = 'none';
-loginScreen.style.display = 'block';
-clearInterval(timerInterval);
-showNotification('Sesión cerrada', 'info');
-}
-});
-
-statsBtn.addEventListener('click', () => {
-studentPanel.style.display = 'none';
-statsPanel.style.display = 'block';
-loadStatsPanel();
-});
-
-backToTyping.addEventListener('click', () => {
-statsPanel.style.display = 'none';
-studentPanel.style.display = 'block';
-});
-
-printStats.addEventListener('click', () => {
-window.print();
-});
-
-// Panel de administración
-function loadAdminPanel() {
+// Función para eliminar una lección
+function deleteLesson(id) {
+if (confirm('¿Estás seguro de que quieres eliminar esta lección?')) {
+lessons = lessons.filter(l => l.id !== id);
+saveLessons();
 renderLessons();
-adminLessonBtnBottom.style.display = 'block';
+renderLessonSelector();
+showNotification('Lección eliminada correctamente', 'success');
+}
 }
 
-newLessonBtn.addEventListener('click', () => {
-editingLessonId = null;
-formTitle.textContent = 'Nueva Lección';
-lessonTitleInput.value = '';
-lessonLevelInput.value = '1';
-lessonContentInput.value = '';
-lessonForm.classList.add('active');
-});
-
-adminLessonBtnBottom.addEventListener('click', () => {
-editingLessonId = null;
-formTitle.textContent = 'Nueva Lección';
-lessonTitleInput.value = '';
-lessonLevelInput.value = '1';
-lessonContentInput.value = '';
-lessonForm.classList.add('active');
-});
-
-saveLessonBtn.addEventListener('click', () => {
+// Función para guardar una lección
+function saveLesson() {
 const title = lessonTitleInput.value.trim();
 const level = parseInt(lessonLevelInput.value);
 const content = lessonContentInput.value.trim();
@@ -2660,141 +2573,437 @@ showNotification('Lección actualizada correctamente', 'success');
 }
 } else {
 // Crear nueva lección
-const newLesson = {
-id: Date.now(),
+const newId = lessons.length > 0 ? Math.max(...lessons.map(l => l.id)) + 1 : 1;
+const newOrder = lessons.length > 0 ? Math.max(...lessons.map(l => l.order)) + 1 : 1;
+lessons.push({
+id: newId,
 title,
 level,
 content,
-order: lessons.length + 1
-};
-lessons.push(newLesson);
+order: newOrder
+});
 showNotification('Lección creada correctamente', 'success');
 }
 
 saveLessons();
 renderLessons();
+renderLessonSelector();
 lessonForm.classList.remove('active');
+editingLessonId = null;
+}
+
+// Funciones para el arrastre de lecciones
+function handleDragStart(e) {
+draggedElement = e.target;
+e.target.classList.add('dragging');
+}
+
+function handleDragEnd(e) {
+e.target.classList.remove('dragging');
+}
+
+function handleDragOver(e) {
+e.preventDefault();
+}
+
+function handleDragEnter(e) {
+if (e.target.classList.contains('lesson-card') && e.target !== draggedElement) {
+e.target.classList.add('drag-over');
+}
+}
+
+function handleDragLeave(e) {
+if (e.target.classList.contains('lesson-card')) {
+e.target.classList.remove('drag-over');
+}
+}
+
+function handleDrop(e) {
+e.preventDefault();
+if (e.target.classList.contains('lesson-card') && e.target !== draggedElement) {
+e.target.classList.remove('drag-over');
+
+// Obtener los IDs de las lecciones
+const draggedId = parseInt(draggedElement.dataset.id);
+const targetId = parseInt(e.target.dataset.id);
+
+// Obtener las lecciones
+const draggedLesson = lessons.find(l => l.id === draggedId);
+const targetLesson = lessons.find(l => l.id === targetId);
+
+if (!draggedLesson || !targetLesson) return;
+
+// Intercambiar órdenes
+const tempOrder = draggedLesson.order;
+draggedLesson.order = targetLesson.order;
+targetLesson.order = tempOrder;
+
+// Guardar y volver a renderizar
+saveLessons();
+renderLessons();
+renderLessonSelector();
+}
+}
+
+// Event Listeners
+document.addEventListener('DOMContentLoaded', () => {
+// Cargar datos iniciales
+loadUsers();
+lessons = loadLessons(); // Asignar directamente a la variable global
+loadUserStats();
+
+// Renderizar lecciones
+renderLessons();
+renderLessonSelector();
+
+// Event listeners para el login
+studentBtn.addEventListener('click', () => {
+studentBtn.classList.add('active');
+adminBtn.classList.remove('active');
+adminPasswordDiv.style.display = 'none';
+studentLoginDiv.style.display = 'block';
+studentCodeDiv.style.display = 'block';
+loginSubtitle.textContent = 'Si eres alumno de Thames Centre, introduce tu nombre y código';
 });
+
+adminBtn.addEventListener('click', () => {
+adminBtn.classList.add('active');
+studentBtn.classList.remove('active');
+adminPasswordDiv.style.display = 'block';
+studentLoginDiv.style.display = 'none';
+studentCodeDiv.style.display = 'none';
+loginSubtitle.textContent = 'Introduce la contraseña de administrador';
+});
+
+accessBtn.addEventListener('click', () => {
+if (studentBtn.classList.contains('active')) {
+// Login de alumno
+const name = studentNameInput.value.trim();
+const code = studentCodeInput.value.trim();
+
+if (!name || !code) {
+showNotification('Por favor, introduce tu nombre y código', 'error');
+return;
+}
+
+// Verificar si el usuario existe
+const user = users.find(u => u.code === code);
+if (!user) {
+showNotification('Código de acceso incorrecto', 'error');
+return;
+}
+
+// Iniciar sesión como alumno
+currentUser = user;
+loginScreen.style.display = 'none';
+studentPanel.style.display = 'block';
+renderLessonSelector(); // Asegurarse de que las lecciones se muestren
+showNotification(`Bienvenido, ${currentUser.username}`, 'success');
+} else {
+// Login de administrador
+const password = passwordInput.value;
+
+if (password !== adminPassword) {
+showNotification('Contraseña incorrecta', 'error');
+return;
+}
+
+// Iniciar sesión como administrador
+currentUser = { id: 'admin', username: 'Administrador' };
+loginScreen.style.display = 'none';
+adminPanel.style.display = 'block';
+renderLessons(); // Asegurarse de que las lecciones se muestren
+showNotification('Bienvenido al panel de administración', 'success');
+}
+});
+
+exitBtn.addEventListener('click', () => {
+if (confirm('¿Estás seguro de que quieres salir de la aplicación?')) {
+window.close();
+}
+});
+
+logoutAdminBtn.addEventListener('click', () => {
+if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+currentUser = null;
+adminPanel.style.display = 'none';
+loginScreen.style.display = 'block';
+passwordInput.value = '';
+}
+});
+
+logoutStudentBtn.addEventListener('click', () => {
+if (confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+currentUser = null;
+studentPanel.style.display = 'none';
+loginScreen.style.display = 'block';
+studentNameInput.value = '';
+studentCodeInput.value = '';
+}
+});
+
+statsBtn.addEventListener('click', () => {
+studentPanel.style.display = 'none';
+statsPanel.style.display = 'block';
+showUserStats();
+});
+
+backToTyping.addEventListener('click', () => {
+statsPanel.style.display = 'none';
+studentPanel.style.display = 'block';
+});
+
+printStats.addEventListener('click', () => {
+window.print();
+});
+
+// Event listeners para la gestión de lecciones
+newLessonBtn.addEventListener('click', () => {
+editingLessonId = null;
+formTitle.textContent = 'Nueva Lección';
+lessonTitleInput.value = '';
+lessonLevelInput.value = '1';
+lessonContentInput.value = '';
+lessonForm.classList.add('active');
+});
+
+adminLessonBtnBottom.addEventListener('click', () => {
+editingLessonId = null;
+formTitle.textContent = 'Nueva Lección';
+lessonTitleInput.value = '';
+lessonLevelInput.value = '1';
+lessonContentInput.value = '';
+lessonForm.classList.add('active');
+});
+
+saveLessonBtn.addEventListener('click', saveLesson);
 
 cancelLessonBtn.addEventListener('click', () => {
 lessonForm.classList.remove('active');
+editingLessonId = null;
 });
 
-// Gestión de alumnos
-addStudentBtn.addEventListener('click', () => {
-editingStudentId = null;
-studentFormTitle.textContent = 'Añadir Alumno';
-studentUsernameInput.value = '';
-studentCodeInputAdmin.value = '';
-studentForm.classList.add('active');
+exportLessonsBtn.addEventListener('click', exportLessons);
+
+importLessonsBtn.addEventListener('click', () => {
+fileInput.click();
+});
+
+fileInput.addEventListener('change', (e) => {
+if (e.target.files.length > 0) {
+importLessons(e.target.files[0]);
+}
+});
+
+// Event listeners para la gestión de alumnos
+document.getElementById('export-students-btn').addEventListener('click', exportStudents);
+
+document.getElementById('import-students-btn').addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (file) {
+            importStudents(file);
+        }
+    };
+    input.click();
 });
 
 viewStudentsBtn.addEventListener('click', () => {
-studentsManagement.style.display = 'block';
-renderStudents();
+    studentsManagement.style.display = studentsManagement.style.display === 'none' ? 'block' : 'none';
+    if (studentsManagement.style.display === 'block') {
+        renderStudents();
+    }
 });
 
+// Event listener para guardar alumno
 saveStudentBtn.addEventListener('click', () => {
-const username = studentUsernameInput.value.trim();
-const code = studentCodeInputAdmin.value.trim();
+    const username = studentUsernameInput.value.trim();
+    const code = studentCodeInputAdmin.value.trim();
 
-if (!username || !code) {
-showNotification('Por favor, completa todos los campos', 'error');
-return;
-}
+    if (!username || !code) {
+        showNotification('Por favor, completa todos los campos', 'error');
+        return;
+    }
 
-if (editingStudentId) {
-// Editar alumno existente
-const studentIndex = users.findIndex(u => u.id === editingStudentId);
-if (studentIndex !== -1) {
-users[studentIndex] = {
-...users[studentIndex],
-username,
-code
-};
-showNotification('Alumno actualizado correctamente', 'success');
-}
-} else {
-// Crear nuevo alumno
-// Verificar si el código ya existe
-if (users.some(u => u.code === code)) {
-showNotification('El código de acceso ya está en uso', 'error');
-return;
-}
+    // Verificar si el código ya existe
+    if (users.some(user => user.code === code)) {
+        showNotification('El código de acceso ya está en uso', 'error');
+        return;
+    }
 
-const newStudent = {
-id: Date.now(),
-username,
-code
-};
-users.push(newStudent);
-showNotification('Alumno creado correctamente', 'success');
-}
+    const newStudent = {
+        id: Date.now(),
+        username,
+        code
+    };
 
-saveUsers();
-renderStudents();
-studentForm.classList.remove('active');
+    users.push(newStudent);
+    saveUsers();
+    studentForm.classList.remove('active');
+    studentUsernameInput.value = '';
+    studentCodeInputAdmin.value = '';
+    showNotification('Alumno añadido correctamente', 'success');
+    renderStudents();
 });
 
+// Event listener para cancelar formulario de alumno
 cancelStudentBtn.addEventListener('click', () => {
-studentForm.classList.remove('active');
+    studentForm.classList.remove('active');
+    studentUsernameInput.value = '';
+    studentCodeInputAdmin.value = '';
 });
 
-// Cambiar contraseña de administrador
-document.getElementById('change-password-btn').addEventListener('click', () => {
-const currentPassword = document.getElementById('current-password').value;
-const newPassword = document.getElementById('new-password').value;
-const confirmPassword = document.getElementById('confirm-password').value;
-
-if (!currentPassword || !newPassword || !confirmPassword) {
-showNotification('Por favor, completa todos los campos', 'error');
-return;
-}
-
-if (currentPassword !== adminPassword) {
-showNotification('La contraseña actual es incorrecta', 'error');
-return;
-}
-
-if (newPassword !== confirmPassword) {
-showNotification('Las nuevas contraseñas no coinciden', 'error');
-return;
-}
-
-adminPassword = newPassword;
-localStorage.setItem('adminPassword', adminPassword);
-showNotification('Contraseña cambiada correctamente', 'success');
-
-// Limpiar campos
-document.getElementById('current-password').value = '';
-document.getElementById('new-password').value = '';
-document.getElementById('confirm-password').value = '';
+// Event listener para mostrar formulario de añadir alumno
+addStudentBtn.addEventListener('click', () => {
+    studentForm.classList.add('active');
+    studentFormTitle.textContent = 'Añadir Alumno';
+    studentUsernameInput.value = '';
+    studentCodeInputAdmin.value = '';
+    editingStudentId = null;
 });
 
-// Eventos del panel de estudiante
-lessonSelect.addEventListener('change', () => {
-    const lessonId = parseInt(lessonSelect.value);
-    currentLesson = lessons.find(lesson => lesson.id === lessonId);
+// Event listener para cambiar contraseña de administrador
+changePasswordBtnHeader.addEventListener('click', () => {
+    passwordModal.classList.add('show');
+});
+
+savePasswordBtn.addEventListener('click', () => {
+    const currentPassword = modalCurrentPassword.value;
+    const newPassword = modalNewPassword.value;
+    const confirmPassword = modalConfirmPassword.value;
+
+    if (currentPassword !== adminPassword) {
+        showNotification('La contraseña actual es incorrecta', 'error');
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        showNotification('Las nuevas contraseñas no coinciden', 'error');
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        showNotification('La nueva contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+    }
+
+    adminPassword = newPassword;
+    showNotification('Contraseña cambiada correctamente', 'success');
+    passwordModal.classList.remove('show');
     
-    // Reiniciar completamente al cambiar de lección
-    resetLessonCompletely();
-    updateCurrentLessonInfo();
+    // Limpiar campos
+    modalCurrentPassword.value = '';
+    modalNewPassword.value = '';
+    modalConfirmPassword.value = '';
 });
 
+cancelPasswordBtn.addEventListener('click', () => {
+    passwordModal.classList.remove('show');
+    modalCurrentPassword.value = '';
+    modalNewPassword.value = '';
+    modalConfirmPassword.value = '';
+});
+
+// Event listener para el selector de lecciones
+lessonSelect.addEventListener('change', (e) => {
+loadLesson(parseInt(e.target.value));
+});
+
+// Event listener para el botón de reinicio
 restartBtn.addEventListener('click', () => {
-    resetLessonCompletely();
+resetExercise();
 });
 
+// Event listener para el botón de continuar en el modal de resultados
 closeModalBtn.addEventListener('click', () => {
     resultModal.classList.remove('show');
-    // No reiniciar la lección aquí para mantener las estadísticas visibles
+    
+    // Obtener el índice de la lección actual
+    const currentIndex = parseInt(lessonSelect.value);
+    const nextIndex = currentIndex + 1;
+    
+    // Verificar si hay una siguiente lección
+    if (nextIndex < lessonSelect.options.length) {
+        // Seleccionar la siguiente lección
+        lessonSelect.value = nextIndex;
+        loadLesson(nextIndex);
+    } else {
+        // Si no hay más lecciones, recargar la actual
+        loadLesson(currentIndex);
+    }
+    
+    resetExercise();
 });
 
-// Event listener para el teclado
-document.addEventListener('keydown', handleKeyDown);
+// Event listeners para el teclado virtual
+document.querySelectorAll('.key').forEach(key => {
+key.addEventListener('click', () => {
+const keyValue = key.dataset.key;
+if (keyValue === 'Backspace') {
+handleBackspace();
+} else if (keyValue.length === 1) {
+handleCharacterInput(keyValue);
+}
+});
+});
 
-// Inicializar la aplicación
-initializeApp();
+// Event listener para el área de texto
+textDisplay.addEventListener('keydown', (e) => {
+    // Prevenir el scroll con la barra espaciadora
+    if (e.key === ' ') {
+        e.preventDefault();
+    }
+    
+    if (!typingActive) {
+        startTyping();
+    }
+    
+    if (e.key === 'Backspace') {
+        handleBackspace();
+    } else if (e.key.length === 1) {
+        handleCharacterInput(e.key);
+    }
+});
+
+// Event listener para eliminar alumnos - CORREGIDO
+document.addEventListener('click', function(e) {
+    // Verificar si se hizo clic en un botón de eliminar alumno
+    if (e.target.closest('.delete-student-btn')) {
+        const deleteButton = e.target.closest('.delete-student-btn');
+        const studentId = parseInt(deleteButton.dataset.id);
+        
+        if (confirm('¿Estás seguro de que quieres eliminar este alumno?')) {
+            users = users.filter(user => user.id !== studentId);
+            saveUsers();
+            renderStudents();
+            showNotification('Alumno eliminado correctamente', 'success');
+        }
+    }
+});
+
+// Event listener para resaltar la tecla esperada
+function highlightExpectedKey() {
+if (!currentLesson || currentIndex >= currentLesson.content.length) return;
+
+const expectedChar = currentLesson.content[currentIndex];
+const keyElement = document.querySelector(`.key[data-key="${expectedChar}"]`);
+
+// Eliminar la clase 'expected' de todas las teclas
+document.querySelectorAll('.key').forEach(key => {
+key.classList.remove('expected');
+});
+
+// Añadir la clase 'expected' a la tecla correspondiente
+if (keyElement) {
+keyElement.classList.add('expected');
+}
+}
+
+// Actualizar la tecla esperada periódicamente
+setInterval(highlightExpectedKey, 100);
 });
 </script>
 </body>
